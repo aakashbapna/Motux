@@ -5,12 +5,18 @@
 	<title>Osmos</title>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="/bundle.js"></script>
-	<style type="text/css">
-		body { margin: 0; padding: 0; }
-		#gameCanvas { background-color: #eee; }
-	</style>
+	<link rel="stylesheet" href="/style.css" />
 </head>
 <body>
 	<canvas id="gameCanvas"></canvas>
+	<div id="welcome">
+		<div id="content">
+			<form name="welcomeForm">
+				<label for="inputName">Enter Username:</label><br/><br/>
+				<input type="text" id="inputName" name="inputName"/><br/><br/>
+				<input type="submit" id="inputSubmit" name="inputSubmit"/>
+			</form>
+		</div>
+	</div>
 </body>
 </html>
