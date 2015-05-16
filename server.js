@@ -15,10 +15,12 @@ io.on('connection', function(socket){
 
 	socket.on('disconnect', function(){
 		console.log('user disconnected', socket.conn.id);
+		socket.broadcast.emit('destroyed', socket.conn.id);
 	});
 
-	socket.on('keypress', function(data){
-		console.log('key pressed', data, socket.conn.id);
+	socket.on('move', function(data){
+		//socket.emit('move', data);
+		socket.broadcast.emit('move', data);
 	});
 });
 

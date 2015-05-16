@@ -1,38 +1,63 @@
 import Mote from './client/components/Mote';
-import Flux from 'flux';
+import MoteStore from './client/stores/MoteStore';
+import MoteActions from './client/actions/MoteActions';
 
-var dispatcher = Flux.dispatcher;
 var socket = io();
 var canvas, ctx, player;
 
-
-var update = function() {};
-
-var clear = function() {};
+var clear = function() {
+	ctx.clearRect(0, 0, canvas.width, canvas.height );
+};
 
 var render = function() {
 	clear();
+
+	player.render(ctx);
+
+	var otherMotes = MoteStore.getAll();
+	Object.keys(otherMotes).forEach(function(_moteId) {
+		otherMotes[_moteId].render(ctx);
+	});
 };
 
-var gameLoop = function() {
-	update();
-	render();
-	window.requestAnimationFrame(gameLoop);
+var updateGame = function() {
+	window.requestAnimationFrame(render);
 };
 
 var startGame = function() {
-	window.requestAnimationFrame(gameLoop);
-};
+	window.addEventListener('keydown', function(e) {
+		switch(e.keyCode) {
+			case 37:
+				player.moveLeft();
+				break;
+			case 38:
+				player.moveUp();
+				break;
+			case 39:
+				player.moveRight();
+				break;
+			case 40:
+				player.moveDown();
+				break;
+			default:
+				break;
+		}
 
-window.addEventListener('keydown', function(e) {
-	socket.emit('keypress', e.keyCode);
-});
+
+		if(e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40) {
+			updateGame();
+			socket.emit('move', player);
+		}
+	});
+
+	updateGame();
+};
 
 window.addEventListener('load', function(e) {
 	canvas = document.getElementById('gameCanvas');
-	ctx = canvas.getContext();
-	canvas.height = window.innerHeight;
-	canvas.width = window.innerWidth;
+	ctx = canvas.getContext('2d');
+	canvas.height = window.innerHeight - 5;
+	canvas.width = window.innerWidth - 5;
 
 	socket.on('connect', function() {
 		document.forms.welcomeForm.inputName.value = socket.id.substr(0,3);
@@ -49,7 +74,21 @@ window.addEventListener('load', function(e) {
 
 			document.getElementById('welcome').style.display = 'none';
 
-			//startGame();
+			startGame();
 		});
+	});
+
+	socket.on('move', function(otherPlayer) {
+		MoteActions.update(otherPlayer.id, otherPlayer);
+	});
+
+	socket.on('destroyed', function(otherPlayerId) {
+		//console.log("got destroy event for", otherPlayerId);
+		MoteActions.destroy(otherPlayerId);
+	});
+
+	MoteStore.on('change', function() {
+		//console.log("MoteStore change event");
+		updateGame();
 	});
 });
