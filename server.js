@@ -45,7 +45,7 @@ io.on('connection', function(socket){
 
 http.listen(port, function(err) {
 	if(err) throw err;
-	console.log('Server listening on port' + port);
+	console.log('Server listening on port ' + port);
 
 	var rndMote = {
 		size: Math.floor(Math.random() * 40),

@@ -26,7 +26,7 @@ var render = function() {
 					MoteActions.destroy(player.id);
 					window.removeEventListener('keydown', keyHandler);
 					socket.emit('destroyed', player.id);
-					delete player;
+					player = null;
 				} else if(status === 'ate') {
 					console.log("you ate someone");
 					MoteActions.destroy(_moteId);
@@ -126,7 +126,7 @@ window.addEventListener('load', function(e) {
 	socket.on('destroyed', function(otherPlayerId) {
 		if(otherPlayerId == player.id) {
 			console.log("you got eaten!");
-			delete player;
+			player = null;
 			updateGame();
 		}
 		//console.log("got destroy event for", otherPlayerId);

@@ -4,6 +4,7 @@
   "description": "Osmos clone using Flux, Sockets and Canvas",
   "main": "server.js",
   "scripts": {
+    "start": "./node_modules/webpack/bin/webpack.js --optimize-minimize && node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -18,12 +19,10 @@
     "express": "^4.12.3",
     "flux": "^2.0.3",
     "object-assign": "^2.0.0",
-    "socket.io": "^1.3.5"
-  },
-  "devDependencies": {
+    "socket.io": "^1.3.5",
+    "webpack": "1.9.7",
     "babel-core": "^5.3.1",
     "babel-loader": "^5.0.0",
-    "json-loader": "^0.5.1",
-    "webpack": "^1.9.5"
+    "json-loader": "^0.5.1"
   }
 }
