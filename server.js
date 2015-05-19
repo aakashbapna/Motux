@@ -41,7 +41,7 @@ io.on('connection', function(socket){
 	});
 });
 
-http.listen(3000, function(err) {
+http.listen(process.env.PORT || 3000, function(err) {
 	if(err) throw err;
 	console.log('Express server listening on port - ' + 3000);
 
