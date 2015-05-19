@@ -22,7 +22,10 @@ io.on('connection', function(socket){
 	socket.on('disconnect', function() {
 		console.log('user disconnected', socket.conn.id);
 		delete _players[socket.conn.id];
-		socket.broadcast.emit('destroyed', socket.conn.id);
+		socket.broadcast.emit('destroyed', {
+			id: socket.conn.id,
+			reason: 'disconnected'
+		});
 	});
 
 	socket.on('move', function(data){
@@ -34,27 +37,41 @@ io.on('connection', function(socket){
 		console.log("player ready", socket.conn.id);
 		_players[mote.id] = mote;
 
-		socket.broadcast.emit('added', _players);
+		socket.broadcast.emit('added', mote);
 	});
 
-	socket.on('destroyed', function(id) {
-		delete _players[id];
-		socket.broadcast.emit('destroyed', id);
+	socket.on('destroyed', function(obj) {
+		delete _players[obj.id];
+		socket.broadcast.emit('destroyed', {
+			id: obj.id,
+			reason: 'eaten',
+			actor: obj.actor
+		});
 	});
 });
+
+var addMote = function() {
+	var rndMote = {
+		size: Math.floor(Math.random() * 35 + 5),
+		id: "npc" + Math.floor(Math.random() * 10000),
+		x: Math.floor(Math.random() * 500),
+		y: Math.floor(Math.random() * 500),
+		z: 0,
+		isNPC: true
+	};
+
+	if(Object.keys(_players).length < 20) {
+		_players[rndMote.id] = rndMote;
+
+		console.log("npc added", rndMote);
+		io.emit('added', rndMote);
+	}
+};
 
 http.listen(port, function(err) {
 	if(err) throw err;
 	console.log('Server listening on port ' + port);
 
-	var rndMote = {
-		size: Math.floor(Math.random() * 40),
-		id: "npc" + Math.floor(Math.random() * 10000),
-		x: Math.floor(Math.random() * 500),
-		y: Math.floor(Math.random() * 500),
-		z: 0
-	};
-	//MoteActions.create(rndMote);
-
-	_players[rndMote.id] = (rndMote);
+	addMote();
+	setInterval(addMote, 60000);
 });

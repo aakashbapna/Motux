@@ -23,14 +23,21 @@ var render = function() {
 			if(player) {
 				var status = player.interact(_mote);
 				if(status === 'eaten') {
+					console.log("you got eaten by", _mote.id);
 					MoteActions.destroy(player.id);
 					window.removeEventListener('keydown', keyHandler);
-					socket.emit('destroyed', player.id);
+					socket.emit('destroyed', {
+						id: player.id,
+						actor: _mote
+					});
 					player = null;
 				} else if(status === 'ate') {
-					console.log("you ate someone");
+					console.log("you ate", _mote.name || _mote.id);
 					MoteActions.destroy(_moteId);
-					socket.emit('destroyed', _moteId);
+					socket.emit('destroyed', {
+						id: _moteId,
+						actor: player
+					});
 				}
 			}
 		}
@@ -108,29 +115,33 @@ window.addEventListener('load', function(e) {
 	});
 
 	socket.on('added', function(otherPlayerDetails) {
-		//console.log("got players", otherPlayerDetails);
-
-		Object.keys(otherPlayerDetails).forEach(function(id) {
-			if(!player || id != player.id) {
-				if (otherPlayerDetails[id].isMote) {
-					MoteActions.add(otherPlayerDetails[id]);
-				} else {
-					MoteActions.create(otherPlayerDetails[id]);
+		if(otherPlayerDetails.isNPC) {
+			console.log("player joined", otherPlayerDetails);
+			MoteActions.create(otherPlayerDetails);
+		} else {
+			console.log("got players", otherPlayerDetails);
+			Object.keys(otherPlayerDetails).forEach(function (id) {
+				if (!player || id != player.id) {
+					if (otherPlayerDetails[id].isMote) {
+						MoteActions.add(otherPlayerDetails[id]);
+					} else {
+						MoteActions.create(otherPlayerDetails[id]);
+					}
 				}
-			}
-		});
+			});
+		}
 
 		updateGame();
 	});
 
-	socket.on('destroyed', function(otherPlayerId) {
-		if(otherPlayerId == player.id) {
-			console.log("you got eaten!");
+	socket.on('destroyed', function(obj) {
+		if(player && obj.id == player.id) {
+			console.log("you got eaten by", obj.actor.name);
 			player = null;
 			updateGame();
 		}
 		//console.log("got destroy event for", otherPlayerId);
-		MoteActions.destroy(otherPlayerId);
+		MoteActions.destroy(obj.id);
 	});
 
 	MoteStore.on('change', function() {
