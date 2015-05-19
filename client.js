@@ -23,7 +23,7 @@ var render = function() {
 			if(player) {
 				var status = player.interact(_mote);
 				if(status === 'eaten') {
-					console.log("you got eaten by", _mote.id);
+					console.log("you got eaten by", _mote.id, _mote);
 					MoteActions.destroy(player.id);
 					window.removeEventListener('keydown', keyHandler);
 					socket.emit('destroyed', {
@@ -79,7 +79,7 @@ var startGame = function() {
 	updateGame();
 };
 
-window.addEventListener('load', function(e) {
+window.addEventListener('load', function() {
 	canvas = document.getElementById('gameCanvas');
 	ctx = canvas.getContext('2d');
 	canvas.height = window.innerHeight - 5;
@@ -92,6 +92,15 @@ window.addEventListener('load', function(e) {
 		document.forms.welcomeForm.addEventListener('submit', function(e) {
 			e.preventDefault();
 			var name = document.forms.welcomeForm.inputName.value;
+
+			if(name.length < 3 || name.length > 15) {
+				alert('Name should be between 3 and 15 characters long');
+				return false;
+			}
+			if(!/^[a-zA-Z0-9]*$/.test(name)) {
+				alert('Name can only be alphanum');
+				return false;
+			}
 
 			player = new Mote({
 				id: socket.id,
@@ -136,7 +145,7 @@ window.addEventListener('load', function(e) {
 
 	socket.on('destroyed', function(obj) {
 		if(player && obj.id == player.id) {
-			console.log("you got eaten by", obj.actor.name);
+			console.log("you got eaten by", obj.actor.name, obj.actor);
 			player = null;
 			updateGame();
 		}
