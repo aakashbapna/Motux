@@ -14,7 +14,7 @@ var render = function() {
 
 	player && player.render(ctx);
 	var otherMotes = MoteStore.getAll();
-	console.log("other players", otherMotes);
+	//console.log("other players", otherMotes);
 	Object.keys(otherMotes).forEach(function(_moteId) {
 		var _mote = otherMotes[_moteId];
 		if(_mote) {
@@ -26,6 +26,7 @@ var render = function() {
 					MoteActions.destroy(player.id);
 					window.removeEventListener('keydown', keyHandler);
 					socket.emit('destroyed', player.id);
+					delete player;
 				} else if(status === 'ate') {
 					console.log("you ate someone");
 					MoteActions.destroy(_moteId);
@@ -102,12 +103,12 @@ window.addEventListener('load', function(e) {
 	});
 
 	socket.on('move', function(otherPlayer) {
-		console.log('player moved', otherPlayer.id);
+		//console.log('player moved', otherPlayer.id);
 		MoteActions.update(otherPlayer.id, otherPlayer);
 	});
 
 	socket.on('added', function(otherPlayerDetails) {
-		console.log("got players", otherPlayerDetails);
+		//console.log("got players", otherPlayerDetails);
 
 		Object.keys(otherPlayerDetails).forEach(function(id) {
 			if(!player || id != player.id) {
@@ -118,11 +119,15 @@ window.addEventListener('load', function(e) {
 				}
 			}
 		});
+
+		updateGame();
 	});
 
 	socket.on('destroyed', function(otherPlayerId) {
 		if(otherPlayerId == player.id) {
 			console.log("you got eaten!");
+			delete player;
+			updateGame();
 		}
 		//console.log("got destroy event for", otherPlayerId);
 		MoteActions.destroy(otherPlayerId);

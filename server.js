@@ -36,6 +36,7 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('destroyed', function(id) {
+		delete _players[id];
 		socket.broadcast.emit('destroyed', id);
 	});
 });

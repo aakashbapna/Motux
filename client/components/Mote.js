@@ -21,7 +21,7 @@ export default class Mote {
 		if(this.isTouching(otherMote)) {
 			if(this.size < otherMote.size) {
 				//MoteActions.destroy(this.id);
-				console.log('you got eaten');
+				//console.log('you got eaten');
 				return 'eaten';
 			} else if(this.size > otherMote.size) {
 				MoteActions.destroy(otherMote.id);
