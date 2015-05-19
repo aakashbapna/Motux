@@ -4,6 +4,8 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+var port = process.env.PORT || 3000;
+
 var _players = {};
 
 app.use(express.static('static'));
@@ -41,9 +43,9 @@ io.on('connection', function(socket){
 	});
 });
 
-http.listen(process.env.PORT || 3000, function(err) {
+http.listen(port, function(err) {
 	if(err) throw err;
-	console.log('Express server listening on port - ' + 3000);
+	console.log('Server listening on port' + port);
 
 	var rndMote = {
 		size: Math.floor(Math.random() * 40),
