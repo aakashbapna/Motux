@@ -6,10 +6,12 @@ export default class Point {
 	}
 
 	distanceFrom(otherPoint) {
-		return Math.sqrt(
+		var dist = Math.sqrt(
 			Math.pow(otherPoint.x - this.x, 2) +
 			Math.pow(otherPoint.y - this.y, 2) +
 			Math.pow(otherPoint.z - this.z, 2)
-		)
+		);
+
+		return dist;
 	}
 };

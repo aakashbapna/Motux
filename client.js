@@ -12,11 +12,27 @@ var clear = function() {
 var render = function() {
 	clear();
 
-	player.render(ctx);
-
+	player && player.render(ctx);
 	var otherMotes = MoteStore.getAll();
+	console.log("other players", otherMotes);
 	Object.keys(otherMotes).forEach(function(_moteId) {
-		otherMotes[_moteId].render(ctx);
+		var _mote = otherMotes[_moteId];
+		if(_mote) {
+			_mote.render(ctx);
+
+			if(player) {
+				var status = player.interact(_mote);
+				if(status === 'eaten') {
+					MoteActions.destroy(player.id);
+					window.removeEventListener('keydown', keyHandler);
+					socket.emit('destroyed', player.id);
+				} else if(status === 'ate') {
+					console.log("you ate someone");
+					MoteActions.destroy(_moteId);
+					socket.emit('destroyed', _moteId);
+				}
+			}
+		}
 	});
 };
 
@@ -24,31 +40,33 @@ var updateGame = function() {
 	window.requestAnimationFrame(render);
 };
 
+var keyHandler = function(e) {
+	switch(e.keyCode) {
+		case 37:
+			player.moveLeft();
+			break;
+		case 38:
+			player.moveUp();
+			break;
+		case 39:
+			player.moveRight();
+			break;
+		case 40:
+			player.moveDown();
+			break;
+		default:
+			break;
+	}
+
+
+	if(e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40) {
+		updateGame();
+		socket.emit('move', player);
+	}
+};
+
 var startGame = function() {
-	window.addEventListener('keydown', function(e) {
-		switch(e.keyCode) {
-			case 37:
-				player.moveLeft();
-				break;
-			case 38:
-				player.moveUp();
-				break;
-			case 39:
-				player.moveRight();
-				break;
-			case 40:
-				player.moveDown();
-				break;
-			default:
-				break;
-		}
-
-
-		if(e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40) {
-			updateGame();
-			socket.emit('move', player);
-		}
-	});
+	window.addEventListener('keydown', keyHandler);
 
 	updateGame();
 };
@@ -69,8 +87,13 @@ window.addEventListener('load', function(e) {
 
 			player = new Mote({
 				id: socket.id,
-				name: name
+				name: name,
+				x: window.innerWidth / 2,
+				y: window.innerHeight / 2,
+				z: 0
 			});
+
+			socket.emit('added', player);
 
 			document.getElementById('welcome').style.display = 'none';
 
@@ -79,10 +102,28 @@ window.addEventListener('load', function(e) {
 	});
 
 	socket.on('move', function(otherPlayer) {
+		console.log('player moved', otherPlayer.id);
 		MoteActions.update(otherPlayer.id, otherPlayer);
 	});
 
+	socket.on('added', function(otherPlayerDetails) {
+		console.log("got players", otherPlayerDetails);
+
+		Object.keys(otherPlayerDetails).forEach(function(id) {
+			if(!player || id != player.id) {
+				if (otherPlayerDetails[id].isMote) {
+					MoteActions.add(otherPlayerDetails[id]);
+				} else {
+					MoteActions.create(otherPlayerDetails[id]);
+				}
+			}
+		});
+	});
+
 	socket.on('destroyed', function(otherPlayerId) {
+		if(otherPlayerId == player.id) {
+			console.log("you got eaten!");
+		}
 		//console.log("got destroy event for", otherPlayerId);
 		MoteActions.destroy(otherPlayerId);
 	});

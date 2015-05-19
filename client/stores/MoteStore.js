@@ -16,6 +16,10 @@ function create(options) {
 	_motes[newMote.id] = newMote;
 }
 
+function add(_mote) {
+	_motes[_mote.id] = _mote;
+}
+
 function update(id, newOptions) {
 	//console.log("store update called");
 	if(!_motes[id]) {
@@ -48,6 +52,11 @@ Dispatcher.register(function(action) {
 	//console.log("dispatched triggered action", action);
 	switch(action.actionType) {
 		case 'player_added':
+			add(action.moteData);
+			MoteStore.emitChange();
+			break;
+
+		case 'player_create':
 			create(action.moteData);
 			MoteStore.emitChange();
 			break;

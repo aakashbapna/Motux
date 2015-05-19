@@ -3,6 +3,12 @@ import Dispatcher from '../AppDispatcher';
 var MoteActions = {
 	create: function(mote) {
 		Dispatcher.dispatch({
+			actionType: 'player_create',
+			moteData: mote
+		});
+	},
+	add: function(mote) {
+		Dispatcher.dispatch({
 			actionType: 'player_added',
 			moteData: mote
 		});
