@@ -9,6 +9,8 @@ export default class Mote {
 		this.size = options.size || 20;
 		this.pos = options.pos || new Point(options.x, options.y, options.z);
 		this.speed = 10;
+		this.isMote = options.isMote;
+		this.isNPC = options.isNPC;
 		//this.vel = new Vector(options.velX, options.velY, options.velZ);
 	}
 
@@ -29,32 +31,41 @@ export default class Mote {
 				return 'ate';
 			}
 		}
+
+		return false;
 	}
 
 	render(ctx) {
-		ctx.strokeStyle = '#003300';
+		ctx.strokeStyle = 'rgba(0,0,0,0.2)';
 		ctx.font="12px Arial";
-		ctx.fillText(this.name, this.pos.x, this.pos.y);
+		ctx.fillStyle = '#000';
+		ctx.fillText(this.name, this.pos.x, this.pos.y + 4);
 		ctx.beginPath();
 		ctx.arc(this.pos.x, this.pos.y, this.size, 0, 2*Math.PI);
+		ctx.fillStyle = 'rgba(0,0,0,0.2)';
+		ctx.fill();
 		ctx.closePath();
 		ctx.stroke();
 	}
 
-	isMote() {
-		return true;
-	}
-
 	moveLeft() {
-		this.pos.x -= this.speed;
+		if(this.pos.x > this.size) {
+			this.pos.x -= this.speed;
+		}
 	}
 	moveUp() {
-		this.pos.y -= this.speed;
+		if(this.pos.y > this.size) {
+			this.pos.y -= this.speed;
+		}
 	}
 	moveDown() {
-		this.pos.y += this.speed;
+		if(this.pos.y < window.innerHeight - this.size) {
+			this.pos.y += this.speed;
+		}
 	}
 	moveRight() {
-		this.pos.x += this.speed;
+		if(this.pos.x < window.innerWidth - this.size) {
+			this.pos.x += this.speed;
+		}
 	}
 };

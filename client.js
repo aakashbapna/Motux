@@ -21,23 +21,25 @@ var render = function() {
 			_mote.render(ctx);
 
 			if(player) {
-				var status = player.interact(_mote);
-				if(status === 'eaten') {
-					console.log("you got eaten by", _mote.id, _mote);
-					MoteActions.destroy(player.id);
-					window.removeEventListener('keydown', keyHandler);
-					socket.emit('destroyed', {
-						id: player.id,
-						actor: _mote
-					});
-					player = null;
-				} else if(status === 'ate') {
-					console.log("you ate", _mote.name || _mote.id);
-					MoteActions.destroy(_moteId);
-					socket.emit('destroyed', {
-						id: _moteId,
-						actor: player
-					});
+				if((_mote.isNPC && _mote.size < player.size) || _mote.isMote) {
+					var status = player.interact(_mote);
+					if (status === 'eaten') {
+						alert("You got eaten by " + _mote.name + "!");
+						MoteActions.destroy(player.id);
+						window.removeEventListener('keydown', keyHandler);
+						socket.emit('destroyed', {
+							id: player.id,
+							actor: _mote
+						});
+						player = null;
+					} else if (status === 'ate') {
+						console.log("you ate", _mote.name || _mote.id);
+						MoteActions.destroy(_moteId);
+						socket.emit('destroyed', {
+							id: _moteId,
+							actor: player
+						});
+					}
 				}
 			}
 		}
@@ -97,18 +99,33 @@ window.addEventListener('load', function() {
 				alert('Name should be between 3 and 15 characters long');
 				return false;
 			}
-			if(!/^[a-zA-Z0-9]*$/.test(name)) {
-				alert('Name can only be alphanum');
+			if(!/^[a-zA-Z0-9\-_]*$/.test(name)) {
+				alert('Name can only be alphanum with - or _');
 				return false;
 			}
 
-			player = new Mote({
-				id: socket.id,
-				name: name,
-				x: window.innerWidth / 2,
-				y: window.innerHeight / 2,
-				z: 0
-			});
+			var generateNewPlayer = function() {
+				player = new Mote({
+					id: socket.id,
+					name: name,
+					x: Math.random() * (window.innerWidth - 200) + 200,
+					y: Math.random() * (window.innerHeight - 200) + 200,
+					z: 0,
+					isMote: true
+				});
+
+				var otherMotes = MoteStore.getAll();
+				Object.keys(otherMotes).forEach(function(_moteId) {
+					var _mote = otherMotes[_moteId];
+					if(_mote && player.interact(_mote)) {
+						generateNewPlayer();
+					}
+				});
+			};
+
+			generateNewPlayer();
+
+			console.log('you are at', player.pos);
 
 			socket.emit('added', player);
 
@@ -125,19 +142,19 @@ window.addEventListener('load', function() {
 
 	socket.on('added', function(otherPlayerDetails) {
 		if(otherPlayerDetails.isNPC) {
-			console.log("player joined", otherPlayerDetails);
+			//console.log("player joined", otherPlayerDetails);
 			MoteActions.create(otherPlayerDetails);
 		} else {
-			console.log("got players", otherPlayerDetails);
-			Object.keys(otherPlayerDetails).forEach(function (id) {
-				if (!player || id != player.id) {
-					if (otherPlayerDetails[id].isMote) {
-						MoteActions.add(otherPlayerDetails[id]);
-					} else {
+			//console.log("got players", otherPlayerDetails);
+			if(otherPlayerDetails.isMote) {
+				MoteActions.create(otherPlayerDetails);
+			} else {
+				Object.keys(otherPlayerDetails).forEach(function (id) {
+					if (!player || id != player.id) {
 						MoteActions.create(otherPlayerDetails[id]);
 					}
-				}
-			});
+				});
+			}
 		}
 
 		updateGame();
@@ -145,7 +162,7 @@ window.addEventListener('load', function() {
 
 	socket.on('destroyed', function(obj) {
 		if(player && obj.id == player.id) {
-			console.log("you got eaten by", obj.actor.name, obj.actor);
+			alert("You got eaten by " + obj.actor.name + "!");
 			player = null;
 			updateGame();
 		}

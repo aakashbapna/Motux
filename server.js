@@ -52,10 +52,10 @@ io.on('connection', function(socket){
 
 var addMote = function() {
 	var rndMote = {
-		size: Math.floor(Math.random() * 35 + 5),
+		size: Math.floor(Math.random() * 25 + 5),
 		id: "npc" + Math.floor(Math.random() * 10000),
-		x: Math.floor(Math.random() * 500),
-		y: Math.floor(Math.random() * 500),
+		x: Math.floor(Math.random() * 2000),
+		y: Math.floor(Math.random() * 2000),
 		z: 0,
 		isNPC: true
 	};
@@ -73,5 +73,5 @@ http.listen(port, function(err) {
 	console.log('Server listening on port ' + port);
 
 	addMote();
-	setInterval(addMote, 60000);
+	setInterval(addMote, 20000);
 });
