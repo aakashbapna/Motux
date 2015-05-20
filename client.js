@@ -75,8 +75,52 @@ var keyHandler = function(e) {
 	}
 };
 
+var touchHandler = function(e) {
+	e.preventDefault();
+	var point;
+	if(e.touches) { point=e.touches[0]; }
+	if(e.clientX) { point=e; }
+
+	if(point.clientX < player.pos.x) {
+		player.moveLeft();
+	}
+	if(point.clientX > player.pos.x) {
+		player.moveRight();
+	}
+	if(point.clientY < player.pos.y) {
+		player.moveUp();
+	}
+	if(point.clientY > player.pos.y) {
+		player.moveDown();
+	}
+
+	updateGame();
+	socket.emit('move', player);
+};
+
+var movingTimer;
+
+var startMoving = function(e) {
+	touchHandler(e);
+	movingTimer = setInterval(touchHandler.bind(null, e), 100);
+};
+
+var stopMoving = function(e) {
+	clearInterval(movingTimer);
+};
+
+var touchMoved = function(e) {
+	console.log(e.touches[0].clientX, e.touches[0].clientY);
+	stopMoving();
+	startMoving(e);
+};
+
 var startGame = function() {
 	window.addEventListener('keydown', keyHandler);
+	window.addEventListener('touchstart', startMoving);
+	window.addEventListener('touchend', stopMoving);
+	window.addEventListener('touchmove', touchMoved);
+	//window.addEventListener('mousedown', touchHandler);
 
 	updateGame();
 };
