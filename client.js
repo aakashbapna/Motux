@@ -3,7 +3,7 @@ import MoteStore from './client/stores/MoteStore';
 import MoteActions from './client/actions/MoteActions';
 
 var socket = io();
-var canvas, ctx, player;
+var canvas, ctx, player, marker;
 
 var clear = function() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height );
@@ -13,6 +13,9 @@ var render = function() {
 	clear();
 
 	player && player.render(ctx);
+	marker.style.left = player.pos.x - 50 + 'px';
+	marker.style.top = player.pos.y - 50 + 'px';
+
 	var otherMotes = MoteStore.getAll();
 	//console.log("other players", otherMotes);
 	Object.keys(otherMotes).forEach(function(_moteId) {
@@ -110,7 +113,6 @@ var stopMoving = function(e) {
 };
 
 var touchMoved = function(e) {
-	console.log(e.touches[0].clientX, e.touches[0].clientY);
 	stopMoving();
 	startMoving(e);
 };
@@ -120,7 +122,6 @@ var startGame = function() {
 	window.addEventListener('touchstart', startMoving);
 	window.addEventListener('touchend', stopMoving);
 	window.addEventListener('touchmove', touchMoved);
-	//window.addEventListener('mousedown', touchHandler);
 
 	updateGame();
 };
@@ -168,8 +169,10 @@ window.addEventListener('load', function() {
 			};
 
 			generateNewPlayer();
-
-			console.log('you are at', player.pos);
+			marker = document.getElementById('marker');
+			marker.style.display = 'block';
+			marker.style.left = player.pos.x - 48 + 'px';
+			marker.style.top = player.pos.y - 50 + 'px';
 
 			socket.emit('added', player);
 

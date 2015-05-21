@@ -42,3 +42,53 @@ body {
     background-color: #000;
     padding: 10px 30px;
 }
+
+#marker {
+    height: 100px; width: 100px;
+    border-radius: 50%;
+    border: 1px solid #666;
+    -webkit-animation: pulse 4s ease-out;
+    -webkit-animation-iteration-count: infinite;
+    -moz-animation: pulse 4s ease-out;
+    -moz-animation-iteration-count: infinite;
+    position: absolute;
+    display: none;
+}
+
+@-webkit-keyframes "pulse" {
+    0% {
+        -webkit-transform: scale(0);
+        opacity: 0.0;
+    }
+    25% {
+        -webkit-transform: scale(0.5);
+        opacity: 0.5;
+    }
+    50% {
+        -webkit-transform: scale(1);
+        opacity: 0.0;
+    }
+    100% {
+        -webkit-transform: scale(1);
+        opacity: 0.0;
+    }
+}
+
+@-moz-keyframes "pulse" {
+    0% {
+        -moz-transform: scale(0);
+        opacity: 0.0;
+    }
+    25% {
+        -moz-transform: scale(0.5);
+        opacity: 0.5;
+    }
+    50% {
+        -moz-transform: scale(1);
+        opacity: 0.0;
+    }
+    100% {
+        -moz-transform: scale(1);
+        opacity: 0.0;
+    }
+}
