@@ -1,5 +1,5 @@
 # Motux
-A simple Osmos clone using Flux, Sockets and Canvas.
+A simple Osmos clone using Flux, Sockets and Canvas. [See Demo](https://fathomless-river-3991.herokuapp.com/)
 
 ###Objective
 My objective is to experiment with synced flux stores across clients.
