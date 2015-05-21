@@ -16,7 +16,6 @@ app.get('/', function(req, res) {
 
 io.on('connection', function(socket){
 	console.log('a user connected', socket.conn.id);
-	console.log("current players", _players);
 	socket.emit('added', _players);
 
 	socket.on('disconnect', function() {

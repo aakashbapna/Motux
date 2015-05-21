@@ -36,7 +36,7 @@ var render = function() {
 						});
 						player = null;
 					} else if (status === 'ate') {
-						console.log("you ate", _mote.name || _mote.id);
+						//console.log("you ate", _mote.name || _mote.id);
 						MoteActions.destroy(_moteId);
 						socket.emit('destroyed', {
 							id: _moteId,
